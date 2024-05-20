@@ -1,0 +1,26 @@
+@startuml "Architecture"
+
+cloud "Authentication\nMicroservice" as AS1 {
+    [Auth] as AS1A
+}
+database "Authentication\nDatabase" {
+    [AuthDB]
+}
+
+cloud "Event\nMicroservice" {
+    [Event]
+}
+database "Event\nDatabase" {
+    [EventDB]
+}
+cloud "Authentication\nMicroservice" as AS2 {
+    [Auth] as AS2A
+}
+
+() "AuthDB\nInterface" as ADBI
+AS2A -- ADBI
+AS1A -- ADBI
+ADBI -- [AuthDB]
+[Event] - [EventDB]
+
+@enduml
