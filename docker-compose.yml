@@ -5,3 +5,34 @@ services:
     ports:
       - 5000:5000
 
+  auth:
+    build:
+      context: ./
+      dockerfile: ./build/auth/Dockerfile
+    ports:
+      - 3000:3000
+  # # Database application service
+  # db-auth:
+  #   image: postgres:16.2-bookworm
+  #   # Restart policy for the container
+  #   restart: unless-stopped
+  #   # Size of /dev/shm
+  #   shm_size: 256mb
+  #   # Run following commands inside the container
+  #   command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
+  #   # Networks the service connects to
+  #   networks:
+  #     db-app:
+  #       aliases: ["${APP_DB_HOST?}"]
+  #   volumes:
+  #     - db-app-data:/var/lib/postgresql/data
+  #     - ${APP_DB_CONFIG_SOURCE?}:/etc/postgresql/postgresql.conf
+  #   env_file:
+  #     - ./config/env/db-app.env
+  #   healthcheck:
+  #     test: "pg_isready -U '${APP_DB_USER}' -d '${APP_DB_NAME}' || exit 1"
+  #     interval: 10s
+  #     timeout: 10s
+  #     retries: 5
+  #   secrets:
+  #     - db-app-root-password
