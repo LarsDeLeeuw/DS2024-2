@@ -39,16 +39,48 @@ services:
     secrets:
       - db-auth-root-password
 
+  db-calendar:
+    image: postgres:16.2-bookworm
+    # Restart policy for the container
+    restart: unless-stopped
+    # Size of /dev/shm
+    shm_size: 256mb
+    # Run following commands inside the container
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
+    # Networks the service connects to
+    networks:
+      db-calendar:
+        aliases: ["${CALENDAR_DB_HOST?}"]
+    volumes:
+      - db-calendar-data:/var/lib/postgresql/data
+      - ${CALENDAR_DB_CONFIG_SOURCE?}:/etc/postgresql/postgresql.conf
+      - ${CALENDAR_DB_INIT_SOURCE?}:/docker-entrypoint-initdb.d/db.sql
+    env_file:
+      - ./configs/db-calendar/.env
+    healthcheck:
+      test: "pg_isready -U '${CALENDAR_DB_USER}' -d '${CALENDAR_DB_NAME}' || exit 1"
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    secrets:
+      - db-calendar-root-password
+
+
 # Network definitions, specifying which networks are internal
 networks:
   db-auth:
+    internal: true
+  db-calendar:
     internal: true
 
 # Volume definitions for persistent data storage
 volumes:
   db-auth-data: {}
+  db-calendar-data: {}
 
 # Secret definitions for storing sensitive data
 secrets:
   db-auth-root-password:
     file: ${SECRET_DB_AUTH_ROOT_PASSWORD_FILE?}
+  db-calendar-root-password:
+    file: ${SECRET_DB_CALENDAR_ROOT_PASSWORD_FILE?}

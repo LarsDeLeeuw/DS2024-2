@@ -2,9 +2,17 @@
 
 object "Calendars" as C {
     <PK> **id**: //Integer//
-    <FK> sharing: //List[Integer]//
-    <FK> events: //List[Integer]//
     owner: //String//
+}
+
+object "CalendarSharingRelationship" as CSR {
+    <FK> **calendar_id**: //Integer//
+    <FK> **shared_calendar_id**: //Integer//
+}
+
+object "CalendarEventsRelationship" as CER {
+    <FK> **calendar_id**: //Integer//
+    <FK> **event_id**: //Integer//
 }
 
 object "Events" as E {
@@ -18,14 +26,17 @@ object "Events" as E {
 object "Invites" as I {
     <PK> **id**: //Integer//
     <FK> event_id: //Integer//
-    guest: //String//
+    <FK> calendar_id: //Integer//
     status: //String//
 }
 
 ' The calendars who you shared with
-C "1" -- "*" C 
+C "*" -- "*" CSR
 ' The (maybe) participating events
-C "1" -- "*" E
+C "*" -- "*" CER
+E "*" -- "*" CER
+' The invites of an event
 E "1" -- "*" I
+C "1" -- "*" I
 
 @enduml
