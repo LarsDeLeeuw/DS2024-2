@@ -1,0 +1,31 @@
+@startuml "Calendar Database Models"
+
+object "Calendars" as C {
+    <PK> **id**: //Integer//
+    <FK> sharing: //List[Integer]//
+    <FK> events: //List[Integer]//
+    owner: //String//
+}
+
+object "Events" as E {
+    <PK> **id**: //Integer//
+    title: //String//
+    date: //String//
+    organizer: //String//
+    private: //Boolean//
+}
+
+object "Invites" as I {
+    <PK> **id**: //Integer//
+    <FK> event_id: //Integer//
+    guest: //String//
+    status: //String//
+}
+
+' The calendars who you shared with
+C "1" -- "*" C 
+' The (maybe) participating events
+C "1" -- "*" E
+E "1" -- "*" I
+
+@enduml

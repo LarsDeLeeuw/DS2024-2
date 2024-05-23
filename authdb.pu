@@ -1,0 +1,9 @@
+@startuml "Auth Database Models"
+
+object "Users" as U {
+    <PK> **id**: //Integer//
+    username: //String//
+    password: //String//
+}
+
+@enduml
