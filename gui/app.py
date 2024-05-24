@@ -1,3 +1,4 @@
+import json
 import sys
 from flask import Flask, render_template, redirect, request, url_for
 import requests
@@ -51,7 +52,10 @@ def create_event():
     #
     # Given some data, create an event and send out the invites.
     #==========================
-
+    test = requests.post("http://gateway:3000/event", data={"username":username, "password":password, "title": title, "date": date, "public": publicprivate})
+    print(test.text, file=sys.stderr)
+    print(username, password, file=sys.stderr)
+    
     return redirect('/')
 
 
@@ -65,11 +69,15 @@ def calendar():
     # Retrieve the calendar of a certain user. The webpage expects a list of (id, title, date, organizer, status, Public/Private) tuples.
     # Try to keep in mind failure of the underlying microservice
     # =================================
-
     success = True # TODO: this might change depending on if the calendar is shared with you
+    test = requests.get("http://gateway:3000/calendar", data={"username":username, "password":password})
+    print(test.text, file=sys.stderr)
+    print(username, password, file=sys.stderr)
+
+    success = test.status_code == 200
 
     if success:
-        calendar = [(1, 'Test event', 'Tomorrow', 'Benjamin', 'Going', 'Public')]  # TODO: call
+        calendar = test.json()
     else:
         calendar = None
 

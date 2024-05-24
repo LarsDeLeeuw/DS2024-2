@@ -23,6 +23,7 @@ var DBHandle *sql.DB
 func RunApp() {
 	// Initialize a new Fiber app
 	app := fiber.New()
+	log.SetOutput(os.Stderr)
 
 	// Setup connection to AuthDB
 	dat, err := os.ReadFile(os.Getenv("POSTGRES_PASSWORD_FILE"))
@@ -39,12 +40,6 @@ func RunApp() {
 	api := app.Group("/api") // /api
 
 	v1 := api.Group("/v1") // /api/v1
-	// Middleware to pass db connection to handlers
-	// v1.Use(func(c *fiber.Ctx) error {
-	// 	c.Locals("db", db)
-	// 	// Go to next middleware:
-	// 	return c.Next()
-	// })
 
 	v1.Post("/login", postLogin)
 	v1.Post("/register", postRegister)
@@ -54,6 +49,7 @@ func RunApp() {
 }
 
 func postRegister(c *fiber.Ctx) (err error) {
+	// Check if handle on DB still valid
 	pingErr := DBHandle.Ping()
 	if pingErr != nil {
 		log.Fatal(pingErr)
@@ -77,13 +73,14 @@ func postRegister(c *fiber.Ctx) (err error) {
 	result, err := DBHandle.Exec("INSERT INTO users(username, password) VALUES ($1::TEXT, $2::TEXT);", c.FormValue("username"), c.FormValue("password"))
 	if err != nil {
 		log.Println(err)
-		return c.Send(c.BodyRaw())
+		return c.Status(500).SendString("Internal server error")
 	}
 	log.Println(result)
-	return c.Status(200).SendString("Registration succeeded")
+	return c.Status(fiber.StatusOK).SendString("Registration succeeded")
 }
 
 func postLogin(c *fiber.Ctx) (err error) {
+	// Check if handle on DB still valid
 	pingErr := DBHandle.Ping()
 	if pingErr != nil {
 		log.Fatal(pingErr)
@@ -92,15 +89,16 @@ func postLogin(c *fiber.Ctx) (err error) {
 	var password string
 	if err := DBHandle.QueryRow("SELECT password FROM users WHERE username = $1::TEXT;", c.FormValue("username")).Scan(&password); err != nil {
 		if err == sql.ErrNoRows {
-			log.Printf("Tried non existing username: %s", c.FormValue("username"))
+			fmt.Printf("Tried non existing username: %s", c.FormValue("username"))
 			return c.Status(400).SendString("Username doesn't exist.")
 		}
-		log.Println(err)
+		fmt.Println(err)
 		return c.Send(c.BodyRaw())
 	}
 	if password != c.FormValue("password") {
-		log.Printf("Tried wrong password %s was expecting %s", c.FormValue("password"), password)
+		fmt.Printf("Tried wrong password %s was expecting %s", c.FormValue("password"), password)
 		return c.Status(400).SendString("Incorrect password.")
 	}
-	return c.Status(200).SendString("Login succeeded")
+
+	return c.Status(fiber.StatusOK).SendString("Login succeeded")
 }

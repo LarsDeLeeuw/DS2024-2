@@ -21,6 +21,20 @@ services:
     secrets:
       - db-auth-root-password
   
+  calendar:
+    build:
+      context: ./
+      dockerfile: ./build/calendar/Dockerfile
+    networks:
+      gateway:
+      db-calendar:
+    ports:
+      - 3002:3002
+    env_file:
+      - ./configs/calendar/.env
+    secrets:
+      - db-calendar-root-password
+
   gateway:
     build:
       context: ./

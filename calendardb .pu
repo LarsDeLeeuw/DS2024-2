@@ -1,7 +1,7 @@
 @startuml "Calendar Database Models"
 
 object "Calendars" as C {
-    <PK> **id**: //Integer//
+    <PK> **calendar_id**: //Integer//
     owner: //String//
 }
 
@@ -16,15 +16,15 @@ object "CalendarEventsRelationship" as CER {
 }
 
 object "Events" as E {
-    <PK> **id**: //Integer//
+    <PK> **event_id**: //Integer//
     title: //String//
     date: //String//
     organizer: //String//
-    private: //Boolean//
+    public: //Boolean//
 }
 
 object "Invites" as I {
-    <PK> **id**: //Integer//
+    <PK> **invite_id**: //Integer//
     <FK> event_id: //Integer//
     <FK> calendar_id: //Integer//
     status: //String//

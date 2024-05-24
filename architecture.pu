@@ -2,25 +2,30 @@
 
 cloud "Authentication\nMicroservice" as AS1 {
     [Auth] as AS1A
+    () "HTTP" as AS1I
+    AS1A - AS1I
 }
 database "Authentication\nDatabase" {
     [AuthDB]
 }
 
-cloud "Event\nMicroservice" {
-    [Event]
-}
-database "Event\nDatabase" {
-    [EventDB]
-}
-cloud "Authentication\nMicroservice" as AS2 {
-    [Auth] as AS2A
+cloud "Calendar\nMicroservice" AS CS1 {
+    [Calendar] as CS1C
+    () "HTTP" as CS1I
+    CS1C - CS1I
 }
 
-() "AuthDB\nInterface" as ADBI
-AS2A -- ADBI
-AS1A -- ADBI
-ADBI -- [AuthDB]
-[Event] - [EventDB]
+database "Calendar\nDatabase" {
+    [CalendarDB]
+}
+node "API Gateway" {
+    () "HTTP" as AGI
+    AGI - [Gateway]
+}
 
+AS1A -- [AuthDB]
+CS1C -- [CalendarDB]
+AGI - AS1I
+AGI - CS1I
+[GUI] -- AGI
 @enduml
