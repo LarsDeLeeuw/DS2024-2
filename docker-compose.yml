@@ -2,6 +2,8 @@ version: "3.9"
 services:
   gui:
     build: ./gui
+    networks:
+      gateway:
     ports:
       - 5000:5000
 
@@ -9,6 +11,18 @@ services:
     build:
       context: ./
       dockerfile: ./build/auth/Dockerfile
+    networks:
+      gateway:
+      db-auth:
+    ports:
+      - 3001:3001
+  
+  gateway:
+    build:
+      context: ./
+      dockerfile: ./build/gateway/Dockerfile
+    networks:
+      gateway:
     ports:
       - 3000:3000
   
@@ -68,6 +82,7 @@ services:
 
 # Network definitions, specifying which networks are internal
 networks:
+  gateway: {}
   db-auth:
     internal: true
   db-calendar:

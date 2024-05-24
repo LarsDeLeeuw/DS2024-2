@@ -1,3 +1,4 @@
+import sys
 from flask import Flask, render_template, redirect, request, url_for
 import requests
 
@@ -123,7 +124,9 @@ def login():
     # microservice returns True if correct combination, False if otherwise.
     # Also pay attention to the status code returned by the microservice.
     # ================================
-    success = True  # TODO: call
+    test = requests.post("http://gateway:3000/login", data=request.form)
+    print(test.text, file=sys.stderr)
+    success = True
 
     save_to_session('success', success)
     if success:
