@@ -2,7 +2,10 @@ module github.com/LarsDeLeeuw/DS2024-2
 
 go 1.22.3
 
-require github.com/gofiber/fiber/v2 v2.52.4
+require (
+	github.com/gofiber/fiber/v2 v2.52.4
+	github.com/lib/pq v1.10.9
+)
 
 require (
 	github.com/andybalholm/brotli v1.1.0 // indirect

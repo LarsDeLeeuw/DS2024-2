@@ -17,9 +17,38 @@ func RunApp() {
 	})
 
 	app.Post("/login", postLogin)
+	app.Post("/register", postRegister)
 
 	// Start the server on port 3000
 	log.Fatal(app.Listen(":3000"))
+}
+
+func postRegister(c *fiber.Ctx) (err error) {
+	a := fiber.AcquireAgent()
+	defer fiber.ReleaseAgent(a)
+
+	a.Request().Header.SetMethod(fiber.MethodPost)
+	a.Request().SetRequestURI("http://auth:3001/api/v1/register")
+	args := fiber.AcquireArgs()
+	args.Set("username", c.FormValue("username"))
+	args.Set("password", c.FormValue("password"))
+
+	a.Form(args)
+	// ...
+	if err := a.Parse(); err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("Internal server error in API gateway")
+	}
+	fiber.ReleaseArgs(args)
+
+	statusCode, body, errs := a.Bytes() // ..
+	if len(errs) > 0 {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"errs": errs,
+		})
+	}
+
+	// pass status code and body received by the proxy
+	return c.Status(statusCode).Send(body)
 }
 
 func postLogin(c *fiber.Ctx) (err error) {
@@ -35,7 +64,7 @@ func postLogin(c *fiber.Ctx) (err error) {
 	a.Form(args)
 	// ...
 	if err := a.Parse(); err != nil {
-		panic(err)
+		return c.Status(fiber.StatusInternalServerError).SendString("Internal server error in API gateway")
 	}
 	fiber.ReleaseArgs(args)
 

@@ -126,7 +126,7 @@ def login():
     # ================================
     test = requests.post("http://gateway:3000/login", data=request.form)
     print(test.text, file=sys.stderr)
-    success = True
+    success = test.status_code == 200
 
     save_to_session('success', success)
     if success:
@@ -151,7 +151,10 @@ def register():
     # Registration is successful if a user with the same username doesn't exist yet.
     # ================================
 
-    success = True  # TODO: call
+    test = requests.post("http://gateway:3000/register", data=request.form)
+    print(test.text, file=sys.stderr)
+    success = test.status_code == 200
+
     save_to_session('success', success)
 
     if success:
